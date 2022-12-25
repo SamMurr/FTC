@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.Drivebase;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.RunMode.*;
+import static com.arcrobotics.ftclib.hardware.motors.Motor.RunMode.RawPower;
 
+import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.*;
+
+import java.util.Arrays;
+import java.util.OptionalDouble;
 
 public class Mecanum extends FourMotor{
 
@@ -44,11 +47,40 @@ public class Mecanum extends FourMotor{
         return super.DIRECTION;
     }
 
-    public void  move(double[] power) {
-        double[] MODIFIED_POWER = super.getMODIFIED_POWER(power);
-        for (int i = 0; i < drive.length; i++) {
-            drive[i].set(MODIFIED_POWER[i]);
+    public void moveFieldCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL, double GYRO) {
+
+        double X_ROT = STRAFE_VEL* Math.cos(GYRO) - FORWARD_VEL * Math.sin(GYRO);
+        double Y_ROT = FORWARD_VEL * Math.cos(GYRO) + STRAFE_VEL * Math.sin(GYRO);
+
+        double[] power = new double[4];
+        power[0] = Y_ROT + X_ROT + ROTATE_VEL;
+        power[1] = -Y_ROT + X_ROT + ROTATE_VEL;
+        power[2] = Y_ROT - X_ROT + ROTATE_VEL;
+        power[3] = -Y_ROT - X_ROT + ROTATE_VEL;
+
+        power = normalize(power);
+
+        this.move(power);
+    }
+
+    public void moveRobotCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL) {
+        this.moveFieldCentric(FORWARD_VEL, STRAFE_VEL, ROTATE_VEL, 0.0);
+    }
+
+    private double[] normalize(double[] power) {
+
+        double[] power_normalized = new double[power.length];
+        double max_power = Arrays.stream(power).max().getAsDouble();
+
+        for( int i = 0; i < power.length; i++) {
+            power_normalized[i] = Math.abs(power[i] / max_power) * Math.signum(power[i]);
         }
 
+        return power_normalized;
     }
+
+    private void move(double[] power) {
+        for( int i = 0; i < power.length; i++){ drive[i].set(power[i]);}
+
+        }
 }
