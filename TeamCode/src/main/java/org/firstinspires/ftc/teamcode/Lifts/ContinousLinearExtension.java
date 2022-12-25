@@ -21,7 +21,7 @@ public class ContinousLinearExtension {
 
     public void setINVERTED(Boolean setInverted) {if (setInverted) {this.DIRECTION = -1.0;}}
 
-    public void  move(double power) {extension.set(power * DIRECTION);}
+    public void move(double power) {extension.set(power * DIRECTION);}
 
 }
 

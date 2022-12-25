@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.Drivebase;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.RunMode.RawPower;
 
-import com.arcrobotics.ftclib.geometry.Vector2d;
+
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 
 import java.util.Arrays;
-import java.util.OptionalDouble;
 
 public class Mecanum extends FourMotor{
 
@@ -36,7 +35,7 @@ public class Mecanum extends FourMotor{
     }
 
     public double getMAX_SPEED() {
-        return super.MAX_SPEED;
+        return MAX_SPEED;
     }
 
     public void setINVERTED(double[] Invert) {
@@ -44,7 +43,7 @@ public class Mecanum extends FourMotor{
     }
 
     public double[] getINVERTED() {
-        return super.DIRECTION;
+        return DIRECTION;
     }
 
     public void moveFieldCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL, double GYRO) {
@@ -81,6 +80,5 @@ public class Mecanum extends FourMotor{
 
     private void move(double[] power) {
         for( int i = 0; i < power.length; i++){ drive[i].set(power[i]);}
-
         }
 }
