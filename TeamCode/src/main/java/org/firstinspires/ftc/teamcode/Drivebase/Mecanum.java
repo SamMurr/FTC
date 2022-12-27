@@ -38,14 +38,6 @@ public class Mecanum extends FourMotor{
         return MAX_SPEED;
     }
 
-    public void setINVERTED(double[] Invert) {
-        super.setINVERTED(Invert);
-    }
-
-    public double[] getINVERTED() {
-        return DIRECTION;
-    }
-
     public void moveFieldCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL, double GYRO) {
 
         double X_ROT = STRAFE_VEL* Math.cos(GYRO) - FORWARD_VEL * Math.sin(GYRO);
@@ -58,6 +50,8 @@ public class Mecanum extends FourMotor{
         power[3] = -Y_ROT - X_ROT + ROTATE_VEL;
 
         power = normalize(power);
+
+        for(double x : power){ x = x * MAX_SPEED;}
 
         this.move(power);
     }

@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,7 +16,6 @@ import org.firstinspires.ftc.teamcode.Drivebase.Mecanum;
 @Disabled
 public class Robert extends LinearOpMode {
 
-    // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
@@ -26,6 +28,11 @@ public class Robert extends LinearOpMode {
                 new Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_223)
         );
 
+        RevIMU REV_IMU = new RevIMU(hardwareMap);
+        REV_IMU.init();
+
+        GamepadEx Control = new GamepadEx(gamepad1);
+
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -33,16 +40,26 @@ public class Robert extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        boolean RobotCentric = true;
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+                double FORWARD_VEL = Control.getLeftY();
+                double STRAFE_VEL  = Control.getLeftX();
+                double ROTATE_VEL  = Control.getRightX();
+                double GYRO        = REV_IMU.getAbsoluteHeading();
 
-            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double FORWARD_VEL = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double STRAFE_VEL  =  gamepad1.left_stick_x;
-            double ROTATE_VEL  =  gamepad1.right_stick_x;
+           if(RobotCentric){
+               drive.moveRobotCentric(FORWARD_VEL, STRAFE_VEL, ROTATE_VEL);
+           }
 
-            drive.moveRobotCentric(FORWARD_VEL, STRAFE_VEL, ROTATE_VEL);
+           else if(!RobotCentric){
+                drive.moveFieldCentric(FORWARD_VEL, STRAFE_VEL, ROTATE_VEL, GYRO);
+            }
 
+
+
+           RobotCentric = Control.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER) ^ RobotCentric;
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
