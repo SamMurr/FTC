@@ -63,10 +63,12 @@ public class Mecanum extends FourMotor{
     private double[] normalize(double[] power) {
 
         double[] power_normalized = new double[power.length];
-        double max_power = Arrays.stream(power).max().getAsDouble();
+        double temp = Arrays.stream(power).max().getAsDouble();
+        double max_power = Math.max(Math.abs(temp), 1);
+
 
         for( int i = 0; i < power.length; i++) {
-            power_normalized[i] = Math.abs(power[i] / max_power) * Math.signum(power[i]);
+            power_normalized[i] = power[i] / max_power;
         }
 
         return power_normalized;
