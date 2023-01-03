@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.Drivebase.Mecanum;
 @Autonomous(name="RobertAuto", group="2022", preselectTeleOp = "Robert")
 @Disabled
 public class RobertAuto extends LinearOpMode {
-
-
     @Override
     public void runOpMode() throws InterruptedException {
 

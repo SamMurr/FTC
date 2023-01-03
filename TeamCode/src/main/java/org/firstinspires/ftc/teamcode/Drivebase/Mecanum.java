@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Drivebase;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.RunMode.*;
+import static com.arcrobotics.ftclib.hardware.motors.Motor.RunMode.RawPower;
+
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.*;
+
+import java.util.Arrays;
 
 public class Mecanum extends FourMotor{
 
@@ -33,22 +35,46 @@ public class Mecanum extends FourMotor{
     }
 
     public double getMAX_SPEED() {
-        return super.MAX_SPEED;
+        return MAX_SPEED;
     }
 
-    public void setINVERTED(double[] Invert) {
-        super.setINVERTED(Invert);
+    public void moveFieldCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL, double GYRO) {
+
+        double X_ROT = STRAFE_VEL* Math.cos(GYRO) - FORWARD_VEL * Math.sin(GYRO);
+        double Y_ROT = FORWARD_VEL * Math.cos(GYRO) + STRAFE_VEL * Math.sin(GYRO);
+
+        double[] power = new double[4];
+        power[0] = Y_ROT + X_ROT + ROTATE_VEL;
+        power[1] = -Y_ROT + X_ROT + ROTATE_VEL;
+        power[2] = Y_ROT - X_ROT + ROTATE_VEL;
+        power[3] = -Y_ROT - X_ROT + ROTATE_VEL;
+
+        power = normalize(power);
+
+        for(double x : power){ x = x * MAX_SPEED;}
+
+        this.move(power);
     }
 
-    public double[] getINVERTED() {
-        return super.DIRECTION;
+    public void moveRobotCentric(double FORWARD_VEL, double STRAFE_VEL, double ROTATE_VEL) {
+        this.moveFieldCentric(FORWARD_VEL, STRAFE_VEL, ROTATE_VEL, 0.0);
     }
 
-    public void  move(double[] power) {
-        double[] MODIFIED_POWER = super.getMODIFIED_POWER(power);
-        for (int i = 0; i < drive.length; i++) {
-            drive[i].set(MODIFIED_POWER[i]);
+    private double[] normalize(double[] power) {
+
+        double[] power_normalized = new double[power.length];
+        double temp = Arrays.stream(power).max().getAsDouble();
+        double max_power = Math.max(Math.abs(temp), 1);
+
+
+        for( int i = 0; i < power.length; i++) {
+            power_normalized[i] = power[i] / max_power;
         }
 
+        return power_normalized;
     }
+
+    private void move(double[] power) {
+        for( int i = 0; i < power.length; i++){ drive[i].set(power[i]);}
+        }
 }
